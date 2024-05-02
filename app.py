@@ -61,6 +61,21 @@ def update_user(id_user):
     
     return jsonify({"message": f"Usuário {id_user} não encontrado"}), 404
 
+@app.route('/user/<int:id_user>', methods=['DELETE'])
+@login_required
+def delete_user(id_user):
+    if id_user != current_user.id:
+        return jsonify({"message": "Deleção não permitida."}), 403
+
+    user = db.session.get(User, id_user)
+
+    if user: 
+        db.session.delete(user)
+        db.session.commit()
+        return jsonify({"message": f"Usuário {id_user} deletado com sucesso"})
+    
+    return jsonify({"message": f"Usuário {id_user} não encontrado"}), 404
+
 ### AUTH ROUTES ###
 @app.route('/login', methods=['POST'])
 def login():
@@ -82,11 +97,6 @@ def login():
 def logout():
     logout_user()
     return jsonify({"message": "Logout realizado com sucesso"})
-
-### HELLO WORLD ###
-@app.route('/hello-world', methods=['GET'])
-def hello_world():
-    return 'Hello World'
 
 if __name__ == '__main__':
     app.run(debug=True)
